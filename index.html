@@ -17,14 +17,12 @@
 
         button { padding: 12px 25px; background: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold; border-radius: 8px; text-transform: uppercase; transition: 0.3s; }
         button:hover { background: var(--gold); color: var(--primary); }
-        .btn-terminar { background: #d9534f; font-size: 0.7rem; padding: 5px 10px; }
+        .btn-terminar { background: #d9534f; font-size: 0.7rem; padding: 5px 10px; border-radius: 5px; color: white; }
 
         #pizza-timer { width: 140px; height: 140px; border-radius: 50%; margin: 20px auto; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; border: 5px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .dica-grande { font-size: 2.2rem; font-weight: bold; color: var(--primary); margin: 20px 0; line-height: 1.2; background: #fff8e1; padding: 25px; border-radius: 15px; border: 2px dashed var(--gold); min-height: 120px; display: flex; align-items: center; justify-content: center; }
         
-        #painel-resposta { display: none; background: #eee; padding: 20px; border-radius: 15px; margin-top: 20px; border: 2px solid var(--primary); animation: slideUp 0.5s; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
+        #painel-resposta { background: #eee; padding: 20px; border-radius: 15px; margin-top: 20px; border: 2px solid var(--primary); }
         input, select { padding: 12px; margin: 10px; border-radius: 8px; border: 2px solid #ddd; width: 85%; max-width: 400px; font-size: 1.1rem; }
         .castigo-box { background: #fff3cd; color: #856404; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 1rem; border: 1px solid #ffeeba; }
         
@@ -42,30 +40,25 @@
     </div>
 
     <div id="setup" class="screen active">
-        <h3 style="color: var(--primary);">CADASTRE ATÉ 5 TIMES</h3>
+        <h3 style="color: var(--primary);">CADASTRE OS TIMES</h3>
         <input type="text" id="t1" placeholder="Nome do Time 1"><br>
         <input type="text" id="t2" placeholder="Nome do Time 2"><br>
         <input type="text" id="t3" placeholder="Nome do Time 3"><br>
         <input type="text" id="t4" placeholder="Nome do Time 4"><br>
         <input type="text" id="t5" placeholder="Nome do Time 5"><br><br>
-        <button onclick="configurarEIniciar()" style="font-size: 1.5rem; width: 85%;">INICIAR BRINCADEIRA 🔑</button>
+        <button onclick="configurarEIniciar()" style="font-size: 1.5rem; width: 85%;">INICIAR 🔑</button>
     </div>
 
     <div id="game" class="screen">
         <div id="status-turno" style="font-weight: bold; color: var(--gold); font-size: 1.2rem;">Pergunta 1/8</div>
-        
         <div id="pizza-timer"><span id="tempo-texto">300</span>s</div>
-        
         <div id="castigo-area" class="castigo-box"></div>
-        
-        <div id="exibicao-pista" class="dica-grande">
-            </div>
+        <div id="exibicao-pista" class="dica-grande"></div>
 
         <div id="painel-resposta">
-            <h3 style="margin:0; color: var(--primary);">VALENDO PONTOS!</h3>
             <select id="select-grupo"></select><br>
-            <input type="text" id="resposta-input" placeholder="Digite a resposta exatamente como na carta"><br>
-            <button onclick="validarResposta()" style="width: 85%;">Confirmar Resposta</button>
+            <input type="text" id="resposta-input" placeholder="Quem sou eu?"><br>
+            <button onclick="validarResposta()" style="width: 85%;">RESPONDER</button>
             <div id="feedback" style="margin-top:10px; font-weight:bold; min-height: 25px;"></div>
         </div>
     </div>
@@ -74,15 +67,16 @@
         <h2 style="color: var(--primary);">🏆 CLASSIFICAÇÃO FINAL</h2>
         <div id="rankings"></div>
         <br>
-        <button onclick="location.reload()">RECOMEÇAR TUDO</button>
+        <button onclick="location.reload()">RECOMEÇAR</button>
     </div>
 </div>
 
 <script>
+// Banco de dados (pode adicionar as outras 23 aqui seguindo o padrão)
 const banco = [
-    { pistas: ["Sou irmã de Arão. (Ex 15:20)", "Fui seguida por todas as mulheres tocando tambores em louvor ao Senhor.", "Apresentei Joquebede à filha do Faraó.", "Por falar contra meu irmão fiquei leprosa."], resposta: "Miriã", castigo: "Imitar um avião decolando." },
+    { pistas: ["Sou irmã de Arão. (Ex 15:20)", "Fui seguida por todas as mulheres tocando tambores.", "Apresentei Joquebede à filha do Faraó.", "Por falar contra meu irmão fiquei leprosa."], resposta: "Miriã", castigo: "Imitar um avião decolando." },
     { pistas: ["O profeta João Batista se vestia igual a mim.", "Matei 450 falsos profetas e me escondi.", "Fui alimentado duas vezes por um anjo.", "Fui arrebatado em um carro com cavalos de fogo."], resposta: "Elias", castigo: "Imitar um gatinho bebendo leite." },
-    { pistas: ["Mardoqueu me adotou como filha.", "Hamã foi enforcado na forca que construiu para meu povo.", "Ganhei a casa de Hamã.", "Estabeleci a festa do Purim."], resposta: "Ester", castigo: "Fazer uma careta." },
+    { pistas: ["Mardoqueu me adotou como filha.", "Hamã foi enforcado na forca que construiu.", "Ganhei a casa de Hamã.", "Estabeleci a festa do Purim."], resposta: "Ester", castigo: "Fazer uma careta." },
     { pistas: ["Eu era um pecador e Jesus me salvou.", "A multidão me impediu de ver a Jesus.", "Fui chefe dos cobradores de impostos.", "Jesus dormiu em minha casa."], resposta: "Zaqueu", castigo: "Abraçar o oponente que estiver vencendo." },
     { pistas: ["Exterminei todos os profetas de Baal.", "Exterminei toda a descendência de Acabe.", "Fui um rei idólatra.", "Mandei lançar Jezabel da janela."], resposta: "Jeú", castigo: "Imitar um macaco com coceira." },
     { pistas: ["Meu pai amava mais meu irmão que a mim.", "Fui o filho preferido da minha mãe.", "Lutei com um anjo e prevaleci.", "Deus trocou meu nome para Israel."], resposta: "Jacó", castigo: "Imitar o som de um carro F1." },
@@ -109,7 +103,7 @@ function configurarEIniciar() {
         document.getElementById('t5').value
     ].filter(t => t.trim() !== "");
 
-    if(timesDigitados.length === 0) return alert("Por favor, digite o nome de pelo menos 1 time!");
+    if(timesDigitados.length === 0) return alert("Digite ao menos 1 time!");
 
     grupos = {};
     const sel = document.getElementById('select-grupo');
@@ -123,45 +117,39 @@ function configurarEIniciar() {
     });
 
     cartasSorteio = [...banco].sort(() => 0.5 - Math.random()).slice(0, 8);
-    
     document.getElementById('setup').classList.remove('active');
     document.getElementById('game').classList.add('active');
     document.getElementById('btn-kill').style.display = "block";
-    
     carregarCarta();
 }
 
 function carregarCarta() {
     if(cartaAtualIdx >= 8) return finalizarJogo();
-    
     pistaAtualIdx = 0;
     document.getElementById('status-turno').innerText = `PERGUNTA ${cartaAtualIdx + 1} DE 8`;
     document.getElementById('castigo-area').innerText = "REGRA DO RODAPÉ: " + cartasSorteio[cartaAtualIdx].castigo;
     document.getElementById('feedback').innerText = "";
     document.getElementById('resposta-input').value = "";
-    
-    // Abre direto na primeira dica
     exibirDicaAtual();
 }
 
 function exibirDicaAtual() {
     document.getElementById('exibicao-pista').innerText = cartasSorteio[cartaAtualIdx].pistas[pistaAtualIdx];
-    document.getElementById('painel-resposta').style.display = "none";
-    iniciarCronometroDica(300); // 5 minutos (300s) para leitura e reflexão
+    iniciarCronometroDica(300);
 }
 
 function iniciarCronometroDica(segundos) {
     clearInterval(intervalTimer);
     let tempo = segundos;
-    
     intervalTimer = setInterval(() => {
         tempo--;
         document.getElementById('tempo-texto').innerText = tempo;
         document.getElementById('pizza-timer').style.background = `conic-gradient(var(--gold) ${(tempo/segundos)*100}%, #eee 0%)`;
-        
         if(tempo <= 0) {
             clearInterval(intervalTimer);
-            document.getElementById('painel-resposta').style.display = "block"; // Abre resposta após tempo zerar
+            pistaAtualIdx++;
+            if(pistaAtualIdx < 4) exibirDicaAtual();
+            else { cartaAtualIdx++; carregarCarta(); }
         }
     }, 1000);
 }
@@ -176,38 +164,22 @@ function validarResposta() {
         let pts = 4 - pistaAtualIdx;
         grupos[g] += pts;
         document.getElementById('feedback').innerHTML = `<span style="color:green">✅ CORRETO! +${pts} PONTOS PARA ${g}</span>`;
-        setTimeout(() => {
-            cartaAtualIdx++;
-            carregarCarta();
-        }, 3000);
+        clearInterval(intervalTimer);
+        setTimeout(() => { cartaAtualIdx++; carregarCarta(); }, 2500);
     } else {
         grupos[g] -= 1;
-        document.getElementById('feedback').innerHTML = `<span style="color:red">❌ ERRADO! -1 PONTO PARA ${g}. PRÓXIMA DICA...</span>`;
-        
-        setTimeout(() => {
-            if(pistaAtualIdx < 3) {
-                pistaAtualIdx++;
-                exibirDicaAtual();
-            } else {
-                cartaAtualIdx++;
-                carregarCarta();
-            }
-        }, 2000);
+        document.getElementById('feedback').innerHTML = `<span style="color:red">❌ ERRADO! -1 PONTO PARA ${g}.</span>`;
     }
 }
 
 function finalizarJogo() {
     clearInterval(intervalTimer);
     document.getElementById('game').classList.remove('active');
-    document.getElementById('setup').classList.remove('active');
     document.getElementById('results').classList.add('active');
     document.getElementById('btn-kill').style.display = "none";
-    
     const rank = Object.entries(grupos).sort((a,b) => b[1]-a[1]);
-    let h = "<table><tr><th>POSIÇÃO</th><th>TIME</th><th>PONTOS TOTAL</th></tr>";
-    rank.forEach((r,i) => {
-        h += `<tr><td>${i+1}º</td><td>${r[0]}</td><td>${r[1]} pts</td></tr>`;
-    });
+    let h = "<table><tr><th>POSIÇÃO</th><th>TIME</th><th>PONTOS</th></tr>";
+    rank.forEach((r,i) => h += `<tr><td>${i+1}º</td><td>${r[0]}</td><td>${r[1]} pts</td></tr>`);
     document.getElementById('rankings').innerHTML = h + "</table>";
 }
 </script>
