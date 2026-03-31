@@ -15,25 +15,22 @@
         .screen { display: none; padding: 20px; }
         .active { display: block; }
 
-        /* Botões */
         button { padding: 12px 25px; background: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold; border-radius: 8px; text-transform: uppercase; transition: 0.3s; }
         button:hover { background: var(--gold); color: var(--primary); }
         .btn-terminar { background: #d9534f; font-size: 0.7rem; padding: 5px 10px; }
 
-        /* Timer e Dica Grande */
         #pizza-timer { width: 140px; height: 140px; border-radius: 50%; margin: 20px auto; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; border: 5px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .dica-grande { font-size: 2.2rem; font-weight: bold; color: var(--primary); margin: 30px 0; line-height: 1.2; background: #fff8e1; padding: 20px; border-radius: 15px; border: 2px dashed var(--gold); }
+        .dica-grande { font-size: 2.2rem; font-weight: bold; color: var(--primary); margin: 20px 0; line-height: 1.2; background: #fff8e1; padding: 25px; border-radius: 15px; border: 2px dashed var(--gold); min-height: 120px; display: flex; align-items: center; justify-content: center; }
         
-        /* Área de Resposta Ocultável */
-        #painel-resposta { display: none; background: #eee; padding: 20px; border-radius: 15px; margin-top: 20px; border: 2px solid var(--primary); }
-        input, select { padding: 12px; margin: 10px; border-radius: 8px; border: 2px solid #ddd; width: 80%; max-width: 350px; font-size: 1.1rem; }
+        #painel-resposta { display: none; background: #eee; padding: 20px; border-radius: 15px; margin-top: 20px; border: 2px solid var(--primary); animation: slideUp 0.5s; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        .castigo-box { background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; margin-bottom: 15px; font-size: 1.1rem; border: 1px solid #ffeeba; }
+        input, select { padding: 12px; margin: 10px; border-radius: 8px; border: 2px solid #ddd; width: 85%; max-width: 400px; font-size: 1.1rem; }
+        .castigo-box { background: #fff3cd; color: #856404; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 1rem; border: 1px solid #ffeeba; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th { background: var(--primary); color: white; padding: 15px; }
         td { padding: 15px; border-bottom: 1px solid #ddd; font-size: 1.2rem; font-weight: bold; }
-        tr:nth-child(even) { background: #f9f9f9; }
     </style>
 </head>
 <body>
@@ -45,44 +42,46 @@
     </div>
 
     <div id="setup" class="screen active">
-        <br><br>
-        <button onclick="configurarEIniciar()" style="font-size: 2rem; padding: 30px 60px;">INICIAR PROGRAMA 🔑</button>
-        <p style="margin-top:20px; color: #888;">(Equipes e Perguntas serão sorteadas automaticamente)</p>
+        <h3 style="color: var(--primary);">CADASTRE ATÉ 5 TIMES</h3>
+        <input type="text" id="t1" placeholder="Nome do Time 1"><br>
+        <input type="text" id="t2" placeholder="Nome do Time 2"><br>
+        <input type="text" id="t3" placeholder="Nome do Time 3"><br>
+        <input type="text" id="t4" placeholder="Nome do Time 4"><br>
+        <input type="text" id="t5" placeholder="Nome do Time 5"><br><br>
+        <button onclick="configurarEIniciar()" style="font-size: 1.5rem; width: 85%;">INICIAR BRINCADEIRA 🔑</button>
     </div>
 
     <div id="game" class="screen">
-        <div id="status-turno" style="font-weight: bold; color: var(--gold);">Pergunta 1/8</div>
+        <div id="status-turno" style="font-weight: bold; color: var(--gold); font-size: 1.2rem;">Pergunta 1/8</div>
         
-        <div id="pizza-timer"><span id="tempo-texto">120</span>s</div>
+        <div id="pizza-timer"><span id="tempo-texto">300</span>s</div>
         
         <div id="castigo-area" class="castigo-box"></div>
         
         <div id="exibicao-pista" class="dica-grande">
-            Aguardando pista...
-        </div>
+            </div>
 
         <div id="painel-resposta">
-            <h3 style="margin:0; color: var(--primary);">HORA DE RESPONDER!</h3>
+            <h3 style="margin:0; color: var(--primary);">VALENDO PONTOS!</h3>
             <select id="select-grupo"></select><br>
-            <input type="text" id="resposta-input" placeholder="Quem sou eu?"><br>
-            <button onclick="validarResposta()" style="width: 80%; max-width: 350px;">Confirmar Agora</button>
-            <div id="feedback" style="margin-top:10px; font-weight:bold;"></div>
+            <input type="text" id="resposta-input" placeholder="Digite a resposta exatamente como na carta"><br>
+            <button onclick="validarResposta()" style="width: 85%;">Confirmar Resposta</button>
+            <div id="feedback" style="margin-top:10px; font-weight:bold; min-height: 25px;"></div>
         </div>
     </div>
 
     <div id="results" class="screen">
-        <h2 style="color: var(--primary);">🏆 RANKING FINAL</h2>
+        <h2 style="color: var(--primary);">🏆 CLASSIFICAÇÃO FINAL</h2>
         <div id="rankings"></div>
         <br>
-        <button onclick="location.reload()">NOVO JOGO</button>
+        <button onclick="location.reload()">RECOMEÇAR TUDO</button>
     </div>
 </div>
 
 <script>
-// BANCO DE DADOS COMPLETO (23+ CARTAS CONFORME FOTOS)
 const banco = [
     { pistas: ["Sou irmã de Arão. (Ex 15:20)", "Fui seguida por todas as mulheres tocando tambores em louvor ao Senhor.", "Apresentei Joquebede à filha do Faraó.", "Por falar contra meu irmão fiquei leprosa."], resposta: "Miriã", castigo: "Imitar um avião decolando." },
-    { pistas: ["O profeta João Batista se vestia igual a mim.", "Matei 450 falsos profetas e em seguida me escondi.", "Fui alimentado duas vezes por um anjo.", "Fui arrebatado em um carro com cavalos de fogo."], resposta: "Elias", castigo: "Imitar um gatinho bebendo leite." },
+    { pistas: ["O profeta João Batista se vestia igual a mim.", "Matei 450 falsos profetas e me escondi.", "Fui alimentado duas vezes por um anjo.", "Fui arrebatado em um carro com cavalos de fogo."], resposta: "Elias", castigo: "Imitar um gatinho bebendo leite." },
     { pistas: ["Mardoqueu me adotou como filha.", "Hamã foi enforcado na forca que construiu para meu povo.", "Ganhei a casa de Hamã.", "Estabeleci a festa do Purim."], resposta: "Ester", castigo: "Fazer uma careta." },
     { pistas: ["Eu era um pecador e Jesus me salvou.", "A multidão me impediu de ver a Jesus.", "Fui chefe dos cobradores de impostos.", "Jesus dormiu em minha casa."], resposta: "Zaqueu", castigo: "Abraçar o oponente que estiver vencendo." },
     { pistas: ["Exterminei todos os profetas de Baal.", "Exterminei toda a descendência de Acabe.", "Fui um rei idólatra.", "Mandei lançar Jezabel da janela."], resposta: "Jeú", castigo: "Imitar um macaco com coceira." },
@@ -92,31 +91,39 @@ const banco = [
     { pistas: ["Dormi em meio a uma forte tempestade.", "Pedi ao Senhor que tirasse minha vida.", "Preguei para a cidade de Nínive.", "Fui engolido por um grande peixe."], resposta: "Jonas", castigo: "Imitar um macaco comendo banana." },
     { pistas: ["Desafiei a sabedoria do rei Salomão.", "Fiquei impressionada com o ouro de Israel.", "Dei 4.200 quilos de ouro ao rei.", "Vim de uma terra muito distante."], resposta: "Rainha de Sabá", castigo: "Imitar um trovão forte." },
     { pistas: ["Eu cortava meus cabelos uma vez por ano.", "Mandei queimar o campo de Joabe.", "Meu pai fugiu de mim a pé.", "Morri preso pelos cabelos em uma árvore."], resposta: "Absalão", castigo: "Imitar um lutador de boxe." },
-    { pistas: ["Fui esposa do rei Acabe.", "Elias profetizou minha morte terrível.", "Pintei os olhos antes de ser jogada da janela.", "Cães comeram minha carne."], resposta: "Jezabel", castigo: "Equilibrar a bíblia na cabeça por 1 min." },
-    { pistas: ["Meu filho morreu nos meus braços com dor de cabeça.", "Mandei fazer um quarto para o profeta Eliseu.", "Meu filho ressuscitou e espirrou 7 vezes.", "Sou de uma cidade chamada Suném."], resposta: "Mulher Sunamita", castigo: "Imitar o rei Davi tocando harpa." },
-    { pistas: ["Não me contaminei com a comida do rei.", "Fui lançado na cova dos leões.", "Interpretei o sonho de Nabucodonosor.", "Oravam 3 vezes ao dia com a janela aberta."], resposta: "Daniel", castigo: "Imitar um pintinho batendo asas." },
-    { pistas: ["Fui destruído por Satanás com permissão de Deus.", "Minha mulher mandou eu amaldiçoar a Deus.", "Meus amigos achavam que eu estava em pecado.", "Deus me deu tudo em dobro no final."], resposta: "Jó", castigo: "Imitar uma moto dando partida." }
+    { pistas: ["Fui esposa do rei Acabe.", "Elias profetizou minha morte terrível.", "Pintei os olhos antes de ser jogada da janela.", "Cães comeram minha carne."], resposta: "Jezabel", castigo: "Equilibrar a bíblia na cabeça por 1 min." }
 ];
 
-let grupos = {"EQUIPE ALFA": 0, "EQUIPE ÔMEGA": 0, "EQUIPE SINAI": 0, "EQUIPE SIÃO": 0};
+let grupos = {};
 let cartasSorteio = [];
 let cartaAtualIdx = 0;
 let pistaAtualIdx = 0;
 let intervalTimer;
 
 function configurarEIniciar() {
-    // Sorteia as perguntas
-    cartasSorteio = [...banco].sort(() => 0.5 - Math.random()).slice(0, 8);
-    
-    // Configura o select de grupos
+    const timesDigitados = [
+        document.getElementById('t1').value, 
+        document.getElementById('t2').value, 
+        document.getElementById('t3').value, 
+        document.getElementById('t4').value,
+        document.getElementById('t5').value
+    ].filter(t => t.trim() !== "");
+
+    if(timesDigitados.length === 0) return alert("Por favor, digite o nome de pelo menos 1 time!");
+
+    grupos = {};
     const sel = document.getElementById('select-grupo');
     sel.innerHTML = "";
-    Object.keys(grupos).forEach(n => {
+    
+    timesDigitados.forEach(t => {
+        grupos[t] = 0;
         let opt = document.createElement('option');
-        opt.value = n; opt.innerText = n;
+        opt.value = t; opt.innerText = t;
         sel.appendChild(opt);
     });
 
+    cartasSorteio = [...banco].sort(() => 0.5 - Math.random()).slice(0, 8);
+    
     document.getElementById('setup').classList.remove('active');
     document.getElementById('game').classList.add('active');
     document.getElementById('btn-kill').style.display = "block";
@@ -130,18 +137,23 @@ function carregarCarta() {
     pistaAtualIdx = 0;
     document.getElementById('status-turno').innerText = `PERGUNTA ${cartaAtualIdx + 1} DE 8`;
     document.getElementById('castigo-area').innerText = "REGRA DO RODAPÉ: " + cartasSorteio[cartaAtualIdx].castigo;
-    document.getElementById('exibicao-pista').innerText = "PREPAREM-SE...";
-    document.getElementById('painel-resposta').style.display = "none";
     document.getElementById('feedback').innerText = "";
+    document.getElementById('resposta-input').value = "";
     
-    iniciarFase(120, true); // Começa pelo rodapé (2 min)
+    // Abre direto na primeira dica
+    exibirDicaAtual();
 }
 
-function iniciarFase(segundos, isRodape) {
+function exibirDicaAtual() {
+    document.getElementById('exibicao-pista').innerText = cartasSorteio[cartaAtualIdx].pistas[pistaAtualIdx];
+    document.getElementById('painel-resposta').style.display = "none";
+    iniciarCronometroDica(300); // 5 minutos (300s) para leitura e reflexão
+}
+
+function iniciarCronometroDica(segundos) {
     clearInterval(intervalTimer);
     let tempo = segundos;
-    document.getElementById('painel-resposta').style.display = "none"; // Garante que some ao mudar fase
-
+    
     intervalTimer = setInterval(() => {
         tempo--;
         document.getElementById('tempo-texto').innerText = tempo;
@@ -149,25 +161,9 @@ function iniciarFase(segundos, isRodape) {
         
         if(tempo <= 0) {
             clearInterval(intervalTimer);
-            if(isRodape) {
-                // Terminou o rodapé, libera a primeira pista
-                liberarProximaPista();
-            } else {
-                // Terminou o tempo de uma pista, abre o campo de resposta
-                mostrarPainelResposta();
-            }
+            document.getElementById('painel-resposta').style.display = "block"; // Abre resposta após tempo zerar
         }
     }, 1000);
-}
-
-function liberarProximaPista() {
-    document.getElementById('exibicao-pista').innerText = cartasSorteio[cartaAtualIdx].pistas[pistaAtualIdx];
-    iniciarFase(300, false); // 5 minutos para os adolescentes pensarem (300s)
-}
-
-function mostrarPainelResposta() {
-    document.getElementById('painel-resposta').style.display = "block";
-    // Se não acertarem nesta rodada, após responder (ou se passar o tempo), vai para a próxima dica
 }
 
 function validarResposta() {
@@ -182,20 +178,17 @@ function validarResposta() {
         document.getElementById('feedback').innerHTML = `<span style="color:green">✅ CORRETO! +${pts} PONTOS PARA ${g}</span>`;
         setTimeout(() => {
             cartaAtualIdx++;
-            document.getElementById('resposta-input').value="";
             carregarCarta();
         }, 3000);
     } else {
         grupos[g] -= 1;
-        document.getElementById('feedback').innerHTML = `<span style="color:red">❌ ERRADO! -1 PONTO PARA ${g}. TENTE A PRÓXIMA DICA!</span>`;
+        document.getElementById('feedback').innerHTML = `<span style="color:red">❌ ERRADO! -1 PONTO PARA ${g}. PRÓXIMA DICA...</span>`;
         
-        // Se errar e ainda houver pistas, libera a próxima dica após 2 segundos
         setTimeout(() => {
             if(pistaAtualIdx < 3) {
                 pistaAtualIdx++;
-                liberarProximaPista();
+                exibirDicaAtual();
             } else {
-                // Se era a última pista, pula para próxima carta
                 cartaAtualIdx++;
                 carregarCarta();
             }
@@ -211,7 +204,7 @@ function finalizarJogo() {
     document.getElementById('btn-kill').style.display = "none";
     
     const rank = Object.entries(grupos).sort((a,b) => b[1]-a[1]);
-    let h = "<table><tr><th>POSIÇÃO</th><th>EQUIPE</th><th>PONTOS</th></tr>";
+    let h = "<table><tr><th>POSIÇÃO</th><th>TIME</th><th>PONTOS TOTAL</th></tr>";
     rank.forEach((r,i) => {
         h += `<tr><td>${i+1}º</td><td>${r[0]}</td><td>${r[1]} pts</td></tr>`;
     });
