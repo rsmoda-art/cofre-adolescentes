@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cofre dos Adolescentes - AD Ipiranga</title>
+    <style>
+        :root { 
+            --primary: #002147; /* Azul Marinho AD Ipiranga */
+            --gold: #d4af37;    /* Dourado */
+            --bg: #f4f4f4;
+            --text: #333;
+        }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); text-align: center; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 8px solid var(--primary); }
+        
+        /* Logo e Título */
+        .header { margin-bottom: 25px; }
+        .logo-placeholder { font-weight: bold; color: var(--primary); font-size: 1.2rem; border: 2px dashed var(--gold); padding: 10px; display: inline-block; margin-bottom: 10px; border-radius: 8px; }
+        h1 { color: var(--primary); margin: 0; letter-spacing: -1px; }
+
+        /* Telas */
+        .screen { display: none; animation: fadeIn 0.5s; }
+        .active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Inputs e Botões */
+        input, select { padding: 12px; margin: 8px; border-radius: 8px; border: 2px solid #ddd; width: 80%; max-width: 300px; font-size: 1rem; }
+        button { padding: 12px 30px; background: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold; border-radius: 8px; transition: 0.3s; font-size: 1rem; text-transform: uppercase; }
+        button:hover { background: var(--gold); color: var(--primary); transform: translateY(-2px); }
+        
+        /* Cronômetro Pizza */
+        #pizza-timer { width: 140px; height: 140px; border-radius: 50%; margin: 20px auto; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 5px solid white; }
+        
+        /* Pistas */
+        .pista-box { background: #f9f9f9; padding: 18px; margin: 12px 0; border-left: 6px solid var(--gold); text-align: left; border-radius: 4px; box-shadow: 2px 2px 5px rgba(0,0,0,0.05); }
+        .castigo-box { background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; font-weight: 500; margin-bottom: 20px; border: 1px solid #ffeeba; }
+        
+        /* Tabela de Classificação */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background: var(--primary); color: white; padding: 15px; }
+        td { padding: 15px; border-bottom: 1px solid #ddd; font-size: 1.1rem; }
+        tr:nth-child(even) { background: #f2f2f2; }
+        .pos-1 { color: var(--gold); font-weight: bold; }
+
+        .feedback-area { min-height: 40px; margin: 15px 0; font-weight: bold; }
+        .error { color: #d9534f; }
+        .success { color: #5cb85c; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="logo-placeholder">ASSEMBLÉIA DE DEUS IPIRANGA</div>
+        <h1>COFRE DOS ADOLESCENTES</h1>
+        <p style="color: #666; font-weight: 500;">Projeto Resgate</p>
+    </div>
+
+    <div id="setup" class="screen active">
+        <h3 style="color: var(--primary);">Entrada das Equipes</h3>
+        <input type="text" id="g1" placeholder="Equipe 1"><br>
+        <input type="text" id="g2" placeholder="Equipe 2"><br>
+        <input type="text" id="g3" placeholder="Equipe 3"><br>
+        <input type="text" id="g4" placeholder="Equipe 4"><br><br>
+        <button onclick="iniciarJogo()">Abrir o Cofre 🔑</button>
+    </div>
+
+    <div id="game" class="screen">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px;">
+            <strong id="status-turno" style="color: var(--primary);">Pergunta 1/8</strong>
+            <div id="castigo-header" style="font-size: 0.9rem; color: #888;">Preparem-se!</div>
+        </div>
+
+        <div id="pizza-timer">
+            <span id="tempo-texto">300</span>s
+        </div>
+
+        <div id="castigo-area" class="castigo-box"></div>
+        <div id="pistas-container"></div>
+        
+        <div class="feedback-area" id="feedback"></div>
+
+        <div style="background: #eee; padding: 20px; border-radius: 12px;">
+            <select id="select-grupo"></select><br>
+            <input type="text" id="resposta-input" placeholder="Quem sou eu?" style="width: 90%;"><br><br>
+            <button onclick="validarResposta()">Confirmar Resposta</button>
+        </div>
+    </div>
+
+    <div id="results" class="screen">
+        <h2 style="color: var(--primary);">🏆 RESULTADO FINAL</h2>
+        <div id="rankings"></div>
+        <br>
+        <button onclick="location.reload()">REINICIAR DINÂMICA</button>
+    </div>
+</div>
+
+<script>
+// (O banco de dados de cartas e a lógica JS permanecem os mesmos do código anterior, 
+// apenas garantindo que as cores e referências batam com o novo estilo acima)
+
+const banco = [
+    { pistas: ["Sou irmã de Arão. (Ex 15:20)", "Fui seguida por todas as mulheres tocando tambores em louvor ao Senhor. (Ex 15:20-21)", "Apresentei Joquebede à filha do Faraó para amamentar seu filho Moisés. (Ex 2:5-10)", "Por falar contra meu irmão fiquei leprosa. (Nm 12:5-10)"], resposta: "Miriã", castigo: "Imitar um avião decolando." },
+    { pistas: ["O profeta João Batista se vestia igual a mim. (2 Rs 1:7-8)", "Matei 450 falsos profetas e em seguida me escondi por temer uma mulher. (1 Rs 18:22 e 19:1-4)", "Fui alimentado duas vezes por um anjo do Senhor. (1 Rs 19:5-7)", "Fui arrebatado em um carro com cavalos de fogo. (2 Rs 2:11)"], resposta: "Elias", castigo: "Imitar um gatinho bebendo leite." },
+    { pistas: ["Mardoqueu me adotou como filha. (Et 2:7)", "Por minha causa Hamã foi enforcado na forca que ele mesmo construiu. (Et 7:1-10)", "Depois que Hamã foi enforcado ganhei a sua casa. (Et 8:1)", "Estabeleci a festa do Purim. (Et 9:25-32)"], resposta: "Ester", castigo: "Fazer uma careta." },
+    { pistas: ["Eu era um pecador e Jesus me salvou. (Lc 19:7-9)", "A multidão me impediu de ver a Jesus. (Lc 19:3)", "Fui chefe dos cobradores de impostos. (Lc 19:2)", "Jesus dormiu em minha casa. (Lc 19:5)"], resposta: "Zaqueu", castigo: "Abraçar o oponente que estiver vencendo." },
+    { pistas: ["Eu provoquei a ira de Deus mais do que todos os reis de Israel. (1 Rs 16:33)", "Sou filho do rei Onri. (1 Rs 16:30)", "Eu reinei sobre Israel e Samaria por 22 anos. (1 Rs 16:29)", "Fui marido de Jezabel. (1 Rs 21:25)"], resposta: "Acabe", castigo: "Imitar uma borboleta." },
+    { pistas: ["Meu filho morreu em meus braços com uma forte dor de cabeça. (2 Rs 4:19-20)", "Após ressuscitar, meu filho espirrou sete vezes. (2 Rs 4:19-20)", "Mandei construir e mobiliar um quarto para hospedar um santo homem de Deus. (2 Rs 4:8-10)", "Repreendi o profeta Eliseu pela morte de meu filho. (2 Rs 4:27-28)"], resposta: "Mulher Sunamita", castigo: "Imitar o rei Davi tocando harpa." },
+    { pistas: ["Não me contaminei com a comida nem com a bebida do rei da Babilônia. (Dn 1:1,8)", "Satanás impediu por 21 dias que o anjo Gabriel respondesse minha oração. (Dn 10:12-15)", "Fui jovem de boa aparência e instruído em sabedoria. (Dn 1:3-6)", "Por orar ao meu Deus fui lançado na cova dos leões. (Dn 6:11-17)"], resposta: "Daniel", castigo: "Imitar um pintinho batendo asas." },
+    { pistas: ["Deus usou um monstro como exemplo para me exortar. (Jó cap: 41)", "Minha oração livrou meus três amigos da morte. (Jó 42:7-9)", "Deus permitiu que Satanás devastasse minha vida. (Jó 2:1-10)", "Minha mulher sugeriu que eu amaldiçoasse a Deus e eu a repreendi. (Jó 2:9-10)"], resposta: "Jó", castigo: "Imitar uma moto dando partida." }
+];
+
+let grupos = {};
+let cartasSorteio = [];
+let cartaAtualIdx = 0;
+let pistaAtualIdx = 0;
+let tempoRestante = 300;
+let intervalTimer;
+
+function iniciarJogo() {
+    const nomes = [document.getElementById('g1').value, document.getElementById('g2').value, document.getElementById('g3').value, document.getElementById('g4').value].filter(n => n.trim() !== "");
+    if(nomes.length === 0) return alert("Por favor, insira o nome de pelo menos uma equipe.");
+    
+    nomes.forEach(n => { grupos[n] = 0; });
+    atualizarSelectGrupos(nomes);
+    
+    // Sorteia 8 cartas aleatórias
+    cartasSorteio = [...banco].sort(() => 0.5 - Math.random()).slice(0, 8);
+    
+    document.getElementById('setup').classList.remove('active');
+    document.getElementById('game').classList.add('active');
+    
+    carregarCarta();
+}
+
+function atualizarSelectGrupos(nomes) {
+    const sel = document.getElementById('select-grupo');
+    sel.innerHTML = "";
+    nomes.forEach(n => {
+        let opt = document.createElement('option');
+        opt.value = n; opt.innerText = n;
+        sel.appendChild(opt);
+    });
+}
+
+function carregarCarta() {
+    if(cartaAtualIdx >= 8) return finalizarJogo();
+    
+    pistaAtualIdx = 0;
+    document.getElementById('status-turno').innerText = `Pergunta ${cartaAtualIdx + 1} de 8`;
+    document.getElementById('pistas-container').innerHTML = "";
+    document.getElementById('castigo-area').innerHTML = `<strong>⚠️ RODAPÉ (Castigo):</strong><br>${cartasSorteio[cartaAtualIdx].castigo}`;
+    document.getElementById('feedback').innerHTML = "";
+    
+    iniciarFase(120, true); // 2 minutos para o rodapé (120s)
+}
+
+function iniciarFase(segundos, isRodape) {
+    clearInterval(intervalTimer);
+    tempoRestante = segundos;
+    
+    intervalTimer = setInterval(() => {
+        tempoRestante--;
+        const pizza = document.getElementById('pizza-timer');
+        const porcentagem = (tempoRestante / segundos) * 100;
+        pizza.style.background = `conic-gradient(var(--gold) ${porcentagem}%, #eee 0%)`;
+        document.getElementById('tempo-texto').innerText = tempoRestante;
+        
+        if(tempoRestante <= 0) {
+            clearInterval(intervalTimer);
+            if(isRodape || pistaAtualIdx < 3) {
+                if(!isRodape) pistaAtualIdx++;
+                liberarProximaPista();
+            }
+        }
+    }, 1000);
+}
+
+function liberarProximaPista() {
+    const pistaDiv = document.createElement('div');
+    pistaDiv.className = "pista-box";
+    pistaDiv.innerHTML = `<strong>Dica ${pistaAtualIdx + 1} (${4 - pistaAtualIdx} pontos):</strong><br>${cartasSorteio[cartaAtualIdx].pistas[pistaAtualIdx]}`;
+    document.getElementById('pistas-container').appendChild(pistaDiv);
+    iniciarFase(300, false); // 5 minutos por pista (300s)
+}
+
+function validarResposta() {
+    const input = document.getElementById('resposta-input').value.trim();
+    const grupoSelt = document.getElementById('select-grupo').value;
+    const respostaCorreta = cartasSorteio[cartaAtualIdx].resposta;
+    
+    const normalize = str => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+    if(normalize(input) === normalize(respostaCorreta)) {
+        const pontos = 4 - pistaAtualIdx;
+        grupos[grupoSelt] += pontos;
+        document.getElementById('feedback').innerHTML = `<span class="success">✅ ACERTOU! +${pontos} pontos para ${grupoSelt}</span>`;
+        clearInterval(intervalTimer);
+        setTimeout(() => {
+            cartaAtualIdx++;
+            document.getElementById('resposta-input').value = "";
+            carregarCarta();
+        }, 2500);
+    } else {
+        grupos[grupoSelt] -= 1;
+        document.getElementById('feedback').innerHTML = `<span class="error">❌ ERROU! -1 ponto para ${grupoSelt}.</span>`;
+    }
+}
+
+function finalizarJogo() {
+    document.getElementById('game').classList.remove('active');
+    document.getElementById('results').classList.add('active');
+    
+    const ranking = Object.entries(grupos).sort((a,b) => b[1] - a[1]);
+    let html = "<table><thead><tr><th>Posição</th><th>Equipe</th><th>Pontos</th></tr></thead><tbody>";
+    ranking.forEach((r, i) => {
+        html += `<tr class="${i===0 ? 'pos-1' : ''}"><td>${i+1}º</td><td>${r[0]}</td><td>${r[1]}</td></tr>`;
+    });
+    document.getElementById('rankings').innerHTML = html + "</tbody></table>";
+}
+</script>
+</body>
+</html>
