@@ -8,24 +8,18 @@
         :root { --primary: #002147; --gold: #d4af37; --bg: #f4f4f4; --text: #333; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); text-align: center; margin: 0; padding: 10px; }
         .container { max-width: 900px; margin: auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 10px solid var(--primary); position: relative; }
-        
         .header { display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
         h1 { margin: 0; color: var(--primary); font-size: 1.8rem; text-transform: uppercase; }
-
         .screen { display: none; padding: 20px; }
         .active { display: block; }
-
         button { padding: 12px 25px; background: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold; border-radius: 8px; text-transform: uppercase; transition: 0.3s; }
         button:hover { background: var(--gold); color: var(--primary); }
         .btn-terminar { background: #d9534f; font-size: 0.7rem; padding: 5px 10px; border-radius: 5px; color: white; }
-
         #pizza-timer { width: 140px; height: 140px; border-radius: 50%; margin: 20px auto; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; border: 5px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .dica-grande { font-size: 2.2rem; font-weight: bold; color: var(--primary); margin: 20px 0; line-height: 1.2; background: #fff8e1; padding: 25px; border-radius: 15px; border: 2px dashed var(--gold); min-height: 120px; display: flex; align-items: center; justify-content: center; }
-        
         #painel-resposta { background: #eee; padding: 20px; border-radius: 15px; margin-top: 20px; border: 2px solid var(--primary); }
         input, select { padding: 12px; margin: 10px; border-radius: 8px; border: 2px solid #ddd; width: 85%; max-width: 400px; font-size: 1.1rem; }
         .castigo-box { background: #fff3cd; color: #856404; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 1rem; border: 1px solid #ffeeba; }
-        
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th { background: var(--primary); color: white; padding: 15px; }
         td { padding: 15px; border-bottom: 1px solid #ddd; font-size: 1.2rem; font-weight: bold; }
@@ -50,8 +44,8 @@
     </div>
 
     <div id="game" class="screen">
-        <div id="status-turno" style="font-weight: bold; color: var(--gold); font-size: 1.2rem;">Pergunta 1/8</div>
-        <div id="pizza-timer"><span id="tempo-texto">180</span>s</div>
+        <div id="status-turno" style="font-weight: bold; color: var(--gold); font-size: 1.2rem;">Pergunta 1 DE 8</div>
+        <div id="pizza-timer"><span id="tempo-texto">60</span>s</div>
         <div id="castigo-area" class="castigo-box"></div>
         <div id="exibicao-pista" class="dica-grande"></div>
 
@@ -72,7 +66,6 @@
 </div>
 
 <script>
-// Banco de dados (pode adicionar as outras 23 aqui seguindo o padrão)
 const banco = [
     { pistas: ["Sou irmã de Arão. (Ex 15:20)", "Fui seguida por todas as mulheres tocando tambores.", "Apresentei Joquebede à filha do Faraó.", "Por falar contra meu irmão fiquei leprosa."], resposta: "Miriã", castigo: "Imitar um avião decolando." },
     { pistas: ["O profeta João Batista se vestia igual a mim.", "Matei 450 falsos profetas e me escondi.", "Fui alimentado duas vezes por um anjo.", "Fui arrebatado em um carro com cavalos de fogo."], resposta: "Elias", castigo: "Imitar um gatinho bebendo leite." },
@@ -135,7 +128,10 @@ function carregarCarta() {
 
 function exibirDicaAtual() {
     document.getElementById('exibicao-pista').innerText = cartasSorteio[cartaAtualIdx].pistas[pistaAtualIdx];
-    iniciarCronometroDica(300);
+    
+    // Define o tempo conforme a pista atual
+    const tempos = [60, 90, 120, 150];
+    iniciarCronometroDica(tempos[pistaAtualIdx]);
 }
 
 function iniciarCronometroDica(segundos) {
@@ -145,11 +141,17 @@ function iniciarCronometroDica(segundos) {
         tempo--;
         document.getElementById('tempo-texto').innerText = tempo;
         document.getElementById('pizza-timer').style.background = `conic-gradient(var(--gold) ${(tempo/segundos)*100}%, #eee 0%)`;
+        
         if(tempo <= 0) {
             clearInterval(intervalTimer);
-            pistaAtualIdx++;
-            if(pistaAtualIdx < 4) exibirDicaAtual();
-            else { cartaAtualIdx++; carregarCarta(); }
+            if(pistaAtualIdx < 3) {
+                pistaAtualIdx++;
+                exibirDicaAtual();
+            } else {
+                // Se o tempo da última dica acabar e ninguém responder, pula para a próxima carta
+                cartaAtualIdx++;
+                carregarCarta();
+            }
         }
     }, 1000);
 }
